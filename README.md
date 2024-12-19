@@ -63,6 +63,7 @@ just before closing body tag.
 | `contain` | `Boolean` | Determines if images are stretched to fill parent element. Can be used with help of CSS `object-fit: cover` to create full page image comparison | No | `false` |
 | `overlay` | `Boolean` | Show overlay upon images | No | `true` |
 | `hideOnSlide` | `Boolean` | Hide overlay & labels on sliding | No | `true` |
+| `vertical` | `Boolean` | Slider direction | No | `false` |
 
 ## Slots
 

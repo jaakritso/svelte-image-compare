@@ -1,25 +1,25 @@
-<svelte:window 
-	on:touchmove={move} 
-	on:touchend={end} 
-	on:mousemove={move} 
-	on:mouseup={end} 
+<svelte:window
+	on:touchmove={move}
+	on:touchend={end}
+	on:mousemove={move}
+	on:mouseup={end}
 	on:resize={resize}
 />
 
 <div class="container" {style} on:touchstart={start} on:mousedown={start}>
-	<img 
-		bind:this={img} 
-		src={after} 
-		alt="after" 
-		on:mousedown|preventDefault 
-		on:load={resize} 
+	<img
+		bind:this={img}
+		src={after}
+		alt="after"
+		on:mousedown|preventDefault
+		on:load={resize}
 		{style}
 	>
-	<img 
-		src={before} 
-		alt="before" 
-		on:mousedown|preventDefault 
-		style="{style}clip:rect(0, {x}px, {h}px, 0);"
+	<img
+		src={before}
+		alt="before"
+		on:mousedown|preventDefault
+		style="{style}clip:{vertical ? `rect(0, ${w}px, ${x}px, 0)` : `rect(0, ${x}px, ${h}px, 0)`};"
 	>
 	{#if overlay}
 	<div class="overlay" style="opacity:{opacity}"></div>
@@ -30,19 +30,24 @@
 	<div class="after-label" style="opacity:{opacity}">
 		<slot name="after"></slot>
 	</div>
-	<div class="handle" style="left: calc({offset * 100}% - 20px)">
-		<div class="arrow-left"></div>
-		<div class="arrow-right"></div>
+	<div class="handle"
+		style="{vertical
+			? `top: calc(${offset * 100}% - 20px); left: calc(50% - 20px);`
+			: `left: calc(${offset * 100}% - 20px); top: calc(50% - 20px);`
+		}">
+		<div class={vertical ? "arrow-up" : "arrow-left"}></div>
+		<div class={vertical ? "arrow-down" : "arrow-right"}></div>
 	</div>
 </div>
 
-<script>	
+<script>
 	let hideOnSlide = true,
 		imgOffset = null,
 		sliding = false,
 		contain = false,
 		overlay = true,
 		offset = 0.5,
+		vertical = false,
 		before = '',
 		after = '',
 		img;
@@ -53,9 +58,12 @@
 
 	function move(e) {
 		if (sliding && imgOffset) {
-			let x = (e.touches ? e.touches[0].pageX : e.pageX) - imgOffset.left;
-			x = x < 0 ? 0 : ((x > w) ? w : x);
-			offset = x / w;
+			let position = vertical
+				? (e.touches ? e.touches[0].pageY : e.pageY) - imgOffset.top
+				: (e.touches ? e.touches[0].pageX : e.pageX) - imgOffset.left;
+			let limit = vertical ? h : w;
+			position = position < 0 ? 0 : (position > limit ? limit : position);
+			offset = position / limit;
 		}
 	}
 
@@ -115,7 +123,7 @@
 	.container:hover > .overlay { opacity: 1; }
 	.handle {
 		z-index: 30;
-		width: 40px; 
+		width: 40px;
 		height: 40px;
 		cursor: move;
 		background: none;
@@ -153,5 +161,22 @@
 		left: 7px;
 		top: 10px;
 		border-right: 10px solid white;
+	}
+	.arrow-up, .arrow-down {
+		width: 0;
+		height: 0;
+		user-select: none;
+		position: relative;
+		border-left: 10px solid transparent;
+		border-right: 10px solid transparent;
+	}
+	.arrow-up {
+		bottom: 23px;
+		border-bottom: 10px solid white;
+	}
+
+	.arrow-down {
+		top: 23px;
+		border-top: 10px solid white;
 	}
 </style>
