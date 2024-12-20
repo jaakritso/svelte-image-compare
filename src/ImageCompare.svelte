@@ -59,13 +59,12 @@
 	function move(e) {
 		if (sliding && imgOffset) {
 			let position = vertical
-				? (e.touches ? e.touches[0].pageY : e.pageY) - imgOffset.top
-				: (e.touches ? e.touches[0].pageX : e.pageX) - imgOffset.left;
+			? (e.touches ? e.touches[0].pageY : e.pageY) - imgOffset.top
+			: (e.touches ? e.touches[0].pageX : e.pageX) - imgOffset.left;
 
 			let limit = vertical ? h : w;
-			position = position < 0 ? 0 : (position > h ? h : position);
-			offset = position / h;
-
+			position = position < 0 ? 0 : (position > limit ? limit : position);
+			offset = position / limit;
 		}
 	}
 
