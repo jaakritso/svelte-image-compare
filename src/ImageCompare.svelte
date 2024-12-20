@@ -19,7 +19,7 @@
 		src={before}
 		alt="before"
 		on:mousedown|preventDefault
-		style="{style}clip:{vertical ? `rect(0, ${w}px, ${x}px, 0)` : `rect(0, ${x}px, ${h}px, 0)`};"
+		style="{style}clip:{vertical ? `rect(0, ${w}px, ${h * offset}px, 0)` : `rect(0, ${w * offset}px, ${h}px, 0)`};"
 	>
 	{#if overlay}
 	<div class="overlay" style="opacity:{opacity}"></div>
@@ -30,7 +30,7 @@
 	<div class="after-label" style="opacity:{opacity}">
 		<slot name="after"></slot>
 	</div>
-	<div class="handle"
+	<div class={vertical ? "handle vertical" : "handle horizontal"}
 		style="{vertical
 			? `top: calc(${offset * 100}% - 20px); left: calc(50% - 20px);`
 			: `left: calc(${offset * 100}% - 20px); top: calc(50% - 20px);`
@@ -61,9 +61,11 @@
 			let position = vertical
 				? (e.touches ? e.touches[0].pageY : e.pageY) - imgOffset.top
 				: (e.touches ? e.touches[0].pageX : e.pageX) - imgOffset.left;
+
 			let limit = vertical ? h : w;
-			position = position < 0 ? 0 : (position > limit ? limit : position);
-			offset = position / limit;
+			position = position < 0 ? 0 : (position > h ? h : position);
+			offset = position / h;
+
 		}
 	}
 
@@ -82,7 +84,7 @@
 	$: opacity = hideOnSlide && sliding ? 0 : 1;
 	$: style = contain ? `width:100%;height:100%;` : `width:${w}px;height:${h}px;`;
 
-	export { before, after, offset, overlay, contain, hideOnSlide };
+	export { before, after, offset, vertical, overlay, contain, hideOnSlide };
 </script>
 
 <style>
@@ -142,8 +144,22 @@
 		left: calc(50% - 2px);
 		border: 2px solid white;
 	}
+	.handle.vertical:before, .handle.vertical:after {
+		width: 9999px;
+		top: calc(50% - 2px);
+		height: auto;
+		left: auto;
+	}
 	.handle:before { top: 40px; }
+	.handle.vertical:before {
+		transform: translateX(-100%);
+		left: 0;
+	}
 	.handle:after { bottom: 40px; }
+	.handle.vertical:after {
+		transform: translateX(100%);
+    	right: 0;
+	}
 	.arrow-right, .arrow-left {
 		width: 0;
 		height: 0;
@@ -171,12 +187,14 @@
 		border-right: 10px solid transparent;
 	}
 	.arrow-up {
-		bottom: 23px;
+		top: 8px;
+		left: 10px;
 		border-bottom: 10px solid white;
 	}
 
 	.arrow-down {
-		top: 23px;
+		top: 12px;
+		left: 10px;
 		border-top: 10px solid white;
 	}
 </style>
